@@ -118,9 +118,17 @@ if __name__ == "__main__":
         bestParams = []
         X = all_train_data['features'].values.astype(np.float32)
         y = all_train_data['labels'].astype(np.int16)
-        pipeline_optimizer = TPOTRegressor(scoring='neg_mean_absolute_error', cv=5, 
-                                            periodic_checkpoint_folder='../data/tpot_best_models_100/',
+        pipeline_optimizer = TPOTRegressor(scoring='neg_mean_absolute_error', cv=5,
+                                            periodic_checkpoint_folder='D:\work\git_repos\data_driven\Deng\data\tpot_best_models_100',
                                             n_jobs=20, random_state=42, verbosity=3, memory='auto',
                                             generations=100, max_eval_time_mins=10)
         pipeline_optimizer.fit(X, y)
-        pipeline_optimizer.export('tpot_best_model_pipeline.py')
+        pipeline_optimizer.export('D:\work\git_repos\data_driven\Deng\source\tpot_best_model_pipeline_gen100.py')
+        
+        
+        # pipeline_optimizer = TPOTRegressor(scoring='neg_mean_absolute_error', cv=5, 
+        #                            periodic_checkpoint_folder='D:\work\git_repos\data_driven\Deng\data\tpot_best_models_500\',
+        #                            n_jobs=20, random_state=42, verbosity=3, memory='auto',
+        #                            generations=500, max_eval_time_mins=10)
+        # pipeline_optimizer.fit(X, y)
+        # pipeline_optimizer.export('D:\work\git_repos\data_driven\Deng\source\tpot_best_model_pipeline_gen500.py')
