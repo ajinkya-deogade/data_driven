@@ -147,6 +147,7 @@ if __name__ == "__main__":
     #to_drop = ['pred_sat_precip', 'pred_dew_temp', 'pred_temp_rng',
     #       'pred_avg_temp', 'station_avg_temp_c', 'station_diur_temp_rng_c',
     #       'ndvi_se', 'ndvi_nw', 'pred_max_temp', 'pred_min_temp', 'pred_temp', 'year']
+    
     train_data_drop = train_data.drop(to_drop, axis=1)
     X_test_drop = X_test.drop(to_drop, axis=1)
 
