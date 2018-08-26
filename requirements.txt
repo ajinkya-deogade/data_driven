@@ -31,7 +31,6 @@ deap==1.2.2
 decorator==4.3.0
 distributed==1.22.0
 docutils==0.14
-drivendata-submission-validator==1.0.0
 entrypoints==0.2.3
 enum34==1.1.6
 funcsigs==1.0.2
