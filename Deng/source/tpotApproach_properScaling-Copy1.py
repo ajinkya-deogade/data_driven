@@ -35,9 +35,6 @@ def pre_process_train_test_data(train, test, label_var, exclude_scaling):
     test.drop(to_drop, axis=1, inplace=True)
     test = test.assign(**{c: 0 for c in to_add})
 
-    train.fillna(0, inplace=True)
-    test.fillna(0, inplace=True)
-
     test_indices = test.index
     train_indices = train.index
     train_test = pd.concat([train, test])
