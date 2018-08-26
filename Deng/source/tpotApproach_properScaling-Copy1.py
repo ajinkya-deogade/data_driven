@@ -18,6 +18,7 @@ from tpot import TPOTRegressor
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_absolute_error, make_scorer
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -117,13 +118,14 @@ if __name__ == "__main__":
     if tune_params > 0:
         bestParams = []
         X = all_train_data['features'].values.astype(np.float32)
-        y = all_train_data['labels'].astype(np.int16)
-        pipeline_optimizer = TPOTRegressor(scoring='neg_mean_absolute_error', cv=5,
-                                            periodic_checkpoint_folder='D:\work\git_repos\data_driven\Deng\data\tpot_best_models_100',
-                                            n_jobs=20, random_state=42, verbosity=3, memory='auto',
+        y = all_train_data['labels'].astype(np.int32)
+        mae_score = make_scorer(mean_absolute_error, greater_is_better=False)
+        pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=5,
+                                            periodic_checkpoint_folder='tpot_best_models_100',
+                                            n_jobs=20, random_state=42, verbosity=1, memory='auto',
                                             generations=100, max_eval_time_mins=10)
         pipeline_optimizer.fit(X, y)
-        pipeline_optimizer.export('D:\work\git_repos\data_driven\Deng\source\tpot_best_model_pipeline_gen100.py')
+        pipeline_optimizer.export('tpot_best_model_pipeline_gen_100_mae.py')
         
         
         # pipeline_optimizer = TPOTRegressor(scoring='neg_mean_absolute_error', cv=5, 
