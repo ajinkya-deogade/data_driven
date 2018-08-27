@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!C:\Users\Shaul\Anaconda2\envs\py37\python
 import sys
 if sys.version_info >= (3, 5):
     from importlib.util import spec_from_file_location
@@ -38,7 +38,7 @@ def pre_process_train_test_data(train, test, label_var, exclude_scaling):
     test_indices = test.index
     train_indices = train.index
     train_test = pd.concat([train, test])
-    train_test.sort_values(['year', 'weekofyear'], inplace=True)
+    # train_test.sort_values(['year', 'weekofyear'], inplace=True)
     train_test.interpolate(method='linear', inplace=True)
 
     print("Shapes before transformation")
@@ -93,15 +93,67 @@ if __name__ == "__main__":
     train_data.index = np.arange(0, train_data.shape[0])
     X_test.index = np.arange(train_data.shape[0]+1, train_data.shape[0]+X_test.shape[0]+1)
     
+    ## Rename Variables
+    train_data = train_data.rename(columns={'precipitation_amt_mm': 'pred_precip', 
+                            'reanalysis_air_temp_k': 'pred_temp',
+                            'reanalysis_avg_temp_k': 'pred_avg_temp',
+                            'reanalysis_dew_point_temp_k': 'pred_dew_temp',
+                            'reanalysis_max_air_temp_k': 'pred_max_temp',
+                            'reanalysis_min_air_temp_k': 'pred_min_temp',
+                            'reanalysis_precip_amt_kg_per_m2': 'pred_precip_vol',
+                            'reanalysis_specific_humidity_g_per_kg' : 'pred_spec_humidity',
+                            'reanalysis_tdtr_k' : 'pred_temp_rng',
+                            'reanalysis_relative_humidity_percent' : 'pred_rel_humidity_per',
+                            'reanalysis_sat_precip_amt_mm': 'pred_sat_precip'
+                            })
+    train_data.interpolate(method='linear', inplace=True)
+
+    X_test = X_test.rename(columns={'precipitation_amt_mm': 'pred_precip', 
+                            'reanalysis_air_temp_k': 'pred_temp',
+                            'reanalysis_avg_temp_k': 'pred_avg_temp',
+                            'reanalysis_dew_point_temp_k': 'pred_dew_temp',
+                            'reanalysis_max_air_temp_k': 'pred_max_temp',
+                            'reanalysis_min_air_temp_k': 'pred_min_temp',
+                            'reanalysis_precip_amt_kg_per_m2': 'pred_precip_vol',
+                            'reanalysis_specific_humidity_g_per_kg' : 'pred_spec_humidity',
+                            'reanalysis_tdtr_k' : 'pred_temp_rng',
+                            'reanalysis_relative_humidity_percent' : 'pred_rel_humidity_per',
+                            'reanalysis_sat_precip_amt_mm': 'pred_sat_precip'
+                            })
+    X_test.interpolate(method='linear', inplace=True)
+
+    kelvin_cols = ['pred_temp', 'pred_avg_temp', 'pred_dew_temp', 'pred_max_temp', 'pred_min_temp']
+    train_data.loc[:, kelvin_cols] = train_data.loc[:, kelvin_cols].copy() - 273.15
+    X_test.loc[:, kelvin_cols] = X_test.loc[:, kelvin_cols].copy() - 273.15
+    print(train_data.head())
+    
+    pred_cols = ['pred_precip', 'pred_temp', 'pred_avg_temp',
+             'pred_dew_temp', 'pred_max_temp', 'pred_min_temp',
+             'pred_temp_rng', 'pred_precip_vol', 'pred_rel_humidity_per',
+             'pred_sat_precip', 'pred_spec_humidity']
+
+    sta_cols = ['station_avg_temp_c', 'station_min_temp_c', 'station_max_temp_c',
+                'station_diur_temp_rng_c', 'station_precip_mm']
+
+    veg_cols = ['ndvi_ne', 'ndvi_nw', 'ndvi_se', 'ndvi_sw']
+
+    loc_cols = ['city', 'year', 'weekofyear']
+    
+    #to_drop = ['pred_precip', 'pred_temp', 'pred_avg_temp',
+    #           'pred_dew_temp', 'pred_max_temp', 'pred_min_temp',
+    #           'pred_temp_rng', 'pred_precip_vol', 'pred_rel_humidity_per',
+    #           'pred_sat_precip', 'year', 'weekofyear', 'ndvi_se', 'ndvi_nw']
+    
     to_drop = ['pred_sat_precip', 'pred_dew_temp', 'pred_temp_rng',
-           'pred_avg_temp', 'station_avg_temp_c', 'station_diur_temp_rng_c',
-           'ndvi_se', 'ndvi_nw', 'pred_max_temp', 'pred_min_temp', 'pred_temp', 'log_cases']
+               'pred_avg_temp', 'station_avg_temp_c', 'station_diur_temp_rng_c',
+               'ndvi_se', 'ndvi_nw', 'pred_max_temp', 'pred_min_temp', 'pred_temp', 'year']
+    
     train_data_drop = train_data.drop(to_drop, axis=1)
     X_test_drop = X_test.drop(to_drop, axis=1)
 
     print("Preprocessing Training")
     label_var = 'total_cases'
-    exclude_scaling = ['year']
+    exclude_scaling = []
     a_train, a_test = pre_process_train_test_data(train_data_drop, X_test_drop, label_var, exclude_scaling)
     X_train = a_train.drop(label_var, axis=1)
     y_train = np.ravel(a_train[label_var])
@@ -139,9 +191,23 @@ if __name__ == "__main__":
         # pipeline_optimizer.fit(X, y)
         # pipeline_optimizer.export('D:\work\git_repos\data_driven\Deng\source\tpot_best_model_pipeline_gen500.py')
         
+        #pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
+        #                        periodic_checkpoint_folder='tpot_best_models_100_feat_13',
+        #                        n_jobs=20, random_state=42, verbosity=2, memory='auto',
+        #                        generations=100, max_eval_time_mins=10)
+        #pipeline_optimizer.fit(X, y)
+        #pipeline_optimizer.export('tpot_best_model_feature_13_gen_100.py')
+        
         pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
-                                periodic_checkpoint_folder='tpot_best_models_100_feat_13',
-                                n_jobs=20, random_state=42, verbosity=1, memory='auto',
-                                generations=2, max_eval_time_mins=10)
+                        periodic_checkpoint_folder='tpot_best_models_300_feat_12',
+                        n_jobs=20, random_state=42, verbosity=2, memory='auto',
+                        generations=500, max_eval_time_mins=10)
         pipeline_optimizer.fit(X, y)
-        pipeline_optimizer.export('tpot_best_model_feature_13_gen_100.py')
+        pipeline_optimizer.export('tpot_best_model_feature_12_gen_300.py')
+        
+        #pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
+        #                periodic_checkpoint_folder='tpot_best_models_100_feat_8',
+        #                n_jobs=20, random_state=42, verbosity=2, memory='auto',
+        #                generations=100, max_eval_time_mins=10)
+        #pipeline_optimizer.fit(X, y)
+        #pipeline_optimizer.export('tpot_best_model_feature_8_gen_100.py')
