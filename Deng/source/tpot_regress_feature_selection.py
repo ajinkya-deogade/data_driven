@@ -144,9 +144,11 @@ if __name__ == "__main__":
     #           'pred_temp_rng', 'pred_precip_vol', 'pred_rel_humidity_per',
     #           'pred_sat_precip', 'year', 'weekofyear', 'ndvi_se', 'ndvi_nw']
     
-    to_drop = ['pred_sat_precip', 'pred_dew_temp', 'pred_temp_rng',
-               'pred_avg_temp', 'station_avg_temp_c', 'station_diur_temp_rng_c',
-               'ndvi_se', 'ndvi_nw', 'pred_max_temp', 'pred_min_temp', 'pred_temp', 'year']
+    #to_drop = ['pred_sat_precip', 'pred_dew_temp', 'pred_temp_rng',
+    #           'pred_avg_temp', 'station_avg_temp_c', 'station_diur_temp_rng_c',
+    #           'ndvi_se', 'ndvi_nw', 'pred_max_temp', 'pred_min_temp', 'pred_temp', 'year']
+    
+    to_drop = ['year', 'weekofyear']
     
     train_data_drop = train_data.drop(to_drop, axis=1)
     X_test_drop = X_test.drop(to_drop, axis=1)
@@ -191,6 +193,13 @@ if __name__ == "__main__":
         # pipeline_optimizer.fit(X, y)
         # pipeline_optimizer.export('D:\work\git_repos\data_driven\Deng\source\tpot_best_model_pipeline_gen500.py')
         
+        pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=5,
+                                           periodic_checkpoint_folder='tpot_best_models_all_feat',
+                                           n_jobs=20, random_state=42, verbosity=2, memory='auto',
+                                           generations=500, max_eval_time_mins=10)
+        pipeline_optimizer.fit(X, y)
+        pipeline_optimizer.export('tpot_best_models_all_feat.py')
+        
         #pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
         #                        periodic_checkpoint_folder='tpot_best_models_100_feat_13',
         #                        n_jobs=20, random_state=42, verbosity=2, memory='auto',
@@ -198,12 +207,12 @@ if __name__ == "__main__":
         #pipeline_optimizer.fit(X, y)
         #pipeline_optimizer.export('tpot_best_model_feature_13_gen_100.py')
         
-        pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
-                        periodic_checkpoint_folder='tpot_best_models_300_feat_12',
-                        n_jobs=20, random_state=42, verbosity=2, memory='auto',
-                        generations=500, max_eval_time_mins=10)
-        pipeline_optimizer.fit(X, y)
-        pipeline_optimizer.export('tpot_best_model_feature_12_gen_300.py')
+        #pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
+        #                periodic_checkpoint_folder='tpot_best_models_300_feat_12',
+        #                n_jobs=20, random_state=42, verbosity=2, memory='auto',
+        #                generations=500, max_eval_time_mins=10)
+        #pipeline_optimizer.fit(X, y)
+        #pipeline_optimizer.export('tpot_best_model_feature_12_gen_300.py')
         
         #pipeline_optimizer = TPOTRegressor(scoring=mae_score, cv=10,
         #                periodic_checkpoint_folder='tpot_best_models_100_feat_8',
